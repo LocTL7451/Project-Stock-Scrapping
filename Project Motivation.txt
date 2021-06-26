@@ -1,0 +1,4 @@
+As I have recently been getting into stock investments, I decided I would attempt to write a script that allows me to input a stock
+ticker/s and be given raw data that I can then perform data visualization methods on. In doing this, I get to experience using a python
+package that relies on external online API, as well as learning more about how the stock market works, whilst also getting a program that
+I can actually use.
