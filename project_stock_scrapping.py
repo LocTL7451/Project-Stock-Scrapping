@@ -78,8 +78,7 @@ def CSVDF(ticker, api, start, end):
     "Close": "ClosePrice"}
     rawDataFrame.rename(columns = columns, inplace = True)
     """
-
-    rawDataFrame.to_csv("raw_df_output.csv")
+    rawDataFrame.to_csv("Data/" + ticker + "_" + start.strftime("%d_%m_%Y") + "_" + end.strftime("%d_%m_%Y") + ".csv")
 
 
 """
@@ -108,22 +107,38 @@ def visDF(dataFrameName, displayKey):
     matplotlib.pyplot.show()
 
 
+"""
+    An alteration on the visData function, allowing users to request for the data in the visual form of a candle stick graph. 
 
+"""
 def visCandleStick(dataFrameName):
-    dataFrame = pandas.read_csv(dataFrameName, parse_dates=True, index_col=0)
 
+    dataFrame = pandas.read_csv(dataFrameName, parse_dates=True, index_col=0)
+    # Taking a copy of the data frame in case we want to alter the frame with in place functions 
+    dataFrameCopy = dataFrame.deepcopy()
+
+
+    #Deleting unrequired data
     del dataFrame["Adj Close"]
     del dataFrame["Volume"]
 
+    # Statement that lets the user know what stock the data is representing
+    tickerName = dataFrameName.split("_")[0]
+    print("Displaying the candle stick graph for: {}".format(tickerName))
 
+    # Panda's tends to have issues when plotting with candles where having the date as the key will mess up the plot 
+    # So we do a reset index to reset the graph's index to the default. 
     dataFrame = dataFrame.reset_index()
 
+    # Using plotly to generate a graph that depicts the data in candle stick form, using the data labels as legends in the graph. 
     candleGraph = plotly.graph_objects.Figure(data=[plotly.graph_objects.Candlestick(x=dataFrame['Date'],
                 open=dataFrame['Open'],
                 high=dataFrame['High'],
                 low=dataFrame['Low'],
                 close=dataFrame['Close'])])
     candleGraph.show()
+
+
 
 
 """
@@ -133,8 +148,6 @@ def visCandleStick(dataFrameName):
     Time Complexity: O(n), where n represents the length of the input array
     Auxiliary Space Complexity: O(1), as the function is "technically" an in place function
 """
-
-
 def arrayStringsToInt(inputArray):
     for i in range(len(inputArray)):
         inputArray[i] = int(inputArray[i])
