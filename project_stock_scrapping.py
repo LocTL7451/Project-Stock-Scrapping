@@ -4,6 +4,7 @@ from matplotlib import style
 import pandas
 import pandas_datareader.data
 import sys
+import plotly.graph_objects
 
 """
 =====================================================================================================================
@@ -39,6 +40,7 @@ def hardCodedExample():
         "AMZN", "yahoo", startDate, endDate)
     print(rawDataFrame.head())
 
+
 """
     An alteration of the hardcoded version of the function, allowing the user to pass through a stock ticker, api, start and end dates. 
     This version of the function will return the data frame as oppposed to a string version of the data frame/a section of the data frame.
@@ -52,6 +54,7 @@ def basicDF(ticker, api, start, end):
     # The raw output of this api call will then be stored within a variable for further usage.
     rawDataFrame = pandas_datareader.data.DataReader(ticker, api, start, end)
     return(rawDataFrame)
+
 
 """
     The most complicated version of the base data frame grabber function, taking in the same parameters as the previous functions, except this time outputting the dataframe
@@ -89,10 +92,38 @@ def visDF(dataFrameName, displayKey):
 
     dataFrame = pandas.read_csv(dataFrameName, parse_dates=True, index_col=0)
 
-    # Plots the data frame onto a graph, displaying the requested data based on the display key
-    dataFrame[displayKey].plot()
+    """    # Specific case for calculating rolling window moving average.
+        if displayKey == "ma":
+            
+            dataFrame["Moving Average"] = dataFrame["Adj Close"].rolling(window=100, min_periods = 0).mean()
+            dataFrame["Moving Average"].plot()
+            matplotlib.pyplot.show()
 
+
+        else:
+    """
+        # Plots the data frame onto a graph, displaying the requested data based on the display key
+    dataFrame[displayKey].plot()
+    #dataFrame.plot()
     matplotlib.pyplot.show()
+
+
+
+def visCandleStick(dataFrameName):
+    dataFrame = pandas.read_csv(dataFrameName, parse_dates=True, index_col=0)
+
+    del dataFrame["Adj Close"]
+    del dataFrame["Volume"]
+
+
+    dataFrame = dataFrame.reset_index()
+
+    candleGraph = plotly.graph_objects.Figure(data=[plotly.graph_objects.Candlestick(x=dataFrame['Date'],
+                open=dataFrame['Open'],
+                high=dataFrame['High'],
+                low=dataFrame['Low'],
+                close=dataFrame['Close'])])
+    candleGraph.show()
 
 
 """
@@ -156,12 +187,20 @@ if __name__ == '__main__':
         # Calls the main function, passing through the data as gathered above
         CSVDF(stockTicker, api, startDate, endDate)
 
-    elif sys.argv[1] == "vis":
+    elif sys.argv[1] == "visSpecific":
 
         csvFileName = sys.argv[2]
         displayKey = sys.argv[3]
         # HIGH LOW OPEN CLOSE VOLUME
         visDF(csvFileName, displayKey)
 
-    else:
-        print("Incorrect usage, please pass through a Stock Ticker, API Base, Start and End dates")
+    elif sys.argv[1] == "Candle":
+        csvFileName = sys.argv[2]
+        visCandleStick(csvFileName)
+
+    """  
+    elif sys.argv[1] == "viz":
+        csvFileName = sys.argv[2]
+        for i in range(3,len(sys.argv)):
+    """
+    
